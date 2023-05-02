@@ -1,0 +1,26 @@
+#main-content {
+	padding: 0px 12px;
+}
+
+#info-ristorante {
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+	padding: 0px 24px;
+	margin: 24px auto;
+}
+
+.recensione {
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+	padding: 12px 24px;
+	margin: 24px auto;
+}
+
+.recensione-info {
+	display: flex;
+	justify-content: space-between;
+}

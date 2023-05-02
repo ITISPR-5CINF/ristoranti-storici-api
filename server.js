@@ -12,7 +12,7 @@ const RISTORANTI_FILENAME = path.join(__dirname, "ristoranti.json");
 
 // Controlla che comuni.json esista
 if (!fs.existsSync(COMUNI_FILENAME)) {
-	console.error("File " + COMUNI_FILENAME + " non trovato");
+	console.error(`File ${COMUNI_FILENAME} non trovato`);
 	process.exit(1);
 }
 
@@ -39,17 +39,17 @@ app.use(express.json());
 // Specifica la cartella contenente i file statici
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get("/api/comuni", function(req, res) {
+app.get("/api/comuni", async (req, res) => {
 	let comuni = JSON.parse(fs.readFileSync(COMUNI_FILENAME));
 	res.json(comuni);
 });
 
-app.get("/api/ristoranti", function(req, res) {
+app.get("/api/ristoranti", async (req, res) => {
 	let ristoranti = JSON.parse(fs.readFileSync(RISTORANTI_FILENAME));
 	res.json(ristoranti);
 });
 
-app.post("/api/ristoranti", function(req, res) {
+app.post("/api/ristoranti", async (req, res) => {
 	// Valida i dati
 	if (
 		// Dati definiti
@@ -63,7 +63,7 @@ app.post("/api/ristoranti", function(req, res) {
 		return;
 	}
 
-	let ristoranti = JSON.parse(fs.readFileSync(RISTORANTI_FILENAME));
+	let ristoranti = JSON.parse(await fs.promises.readFile(RISTORANTI_FILENAME));
 	let ristorante = {
 		"id": (ristoranti.length + 1),
 		"nome": req.body.nome,
@@ -76,20 +76,15 @@ app.post("/api/ristoranti", function(req, res) {
 	ristoranti.push(ristorante);
 
 	// Scrivi su file JSON i dati
-	fs.writeFile(RISTORANTI_FILENAME, JSON.stringify(ristoranti), function(err) {
-		if (err) {
-			res.status(500).send("Errore durante la scrittura su file");
-			return;
-		}
+	await fs.promises.writeFile(RISTORANTI_FILENAME, JSON.stringify(ristoranti));
 
-		res.json(ristorante);
-	});
+	res.json(ristorante);
 });
 
-app.get("/api/ristoranti/:ristorante_id", function(req, res) {
-	let ristoranti = JSON.parse(fs.readFileSync(RISTORANTI_FILENAME));
-	let ristorante = ristoranti.find(r => r.id == req.params.ristorante_id);
+app.get("/api/ristoranti/:ristorante_id", async (req, res) => {
+	let ristoranti = JSON.parse(await fs.promises.readFile(RISTORANTI_FILENAME));
 
+	let ristorante = ristoranti.find(r => r.id == req.params.ristorante_id);
 	if (!ristorante) {
 		res.status(404).send("Ristorante non trovato");
 		return;
@@ -98,80 +93,80 @@ app.get("/api/ristoranti/:ristorante_id", function(req, res) {
 	res.json(ristorante);
 });
 
-app.delete("/api/ristoranti/:ristorante_id", function(req, res) {
-	let ristoranti = JSON.parse(fs.readFileSync(RISTORANTI_FILENAME));
-	let ristorante = ristoranti.find(r => r.id == req.params.ristorante_id);
+app.delete("/api/ristoranti/:ristorante_id", async (req, res) => {
+	let ristoranti = JSON.parse(await fs.promises.readFile(RISTORANTI_FILENAME));
 
+	let ristorante = ristoranti.find(r => r.id == req.params.ristorante_id);
 	if (!ristorante) {
 		res.status(404).send("Ristorante non trovato");
 		return;
 	}
 
-	let recensioni = JSON.parse(fs.readFileSync(RECENSIONI_FILENAME));
+	let recensioni = JSON.parse(await fs.promises.readFile(RECENSIONI_FILENAME));
 
 	// Rimuovi le recensioni collegate al ristorante
 	recensioni = recensioni.filter(r => r.ristorante_id != req.params.ristorante_id);
 
 	// Scrivi su file JSON i dati
-	fs.writeFile(RECENSIONI_FILENAME, JSON.stringify(recensioni), function(err) {
-		if (err) {
-			res.status(500).send("Errore durante la scrittura su file");
-			return;
-		}
-	});
+	await fs.promises.writeFile(RECENSIONI_FILENAME, JSON.stringify(recensioni));
 
 	// Rimuovi il ristorante
 	ristoranti = ristoranti.filter(r => r.id != req.params.ristorante_id);
 
 	// Scrivi su file JSON i dati
-	fs.writeFile(RISTORANTI_FILENAME, JSON.stringify(ristoranti), function(err) {
-		if (err) {
-			res.status(500).send("Errore durante la scrittura su file");
-		} else {
-			res.json(ristorante);
-		}
-	});
+	await fs.promises.writeFile(RISTORANTI_FILENAME, JSON.stringify(ristoranti));
+
+	res.json(ristorante);
 });
 
-app.get("/api/ristoranti/:ristorante_id/recensioni", function(req, res) {
-	let recensioni = JSON.parse(fs.readFileSync(RECENSIONI_FILENAME));
+app.get("/api/ristoranti/:ristorante_id/recensioni", async (req, res) => {
+	let recensioni = JSON.parse(await fs.promises.readFile(RECENSIONI_FILENAME));
+
 	let recensioniRistorante = recensioni.filter(r => r.ristorante_id == req.params.ristorante_id);
 
 	res.json(recensioniRistorante);
 });
 
-app.post("/api/ristoranti/:ristorante_id/recensioni", function(req, res) {
-	let recensioni = JSON.parse(fs.readFileSync(RECENSIONI_FILENAME));
-	let ristoranti = JSON.parse(fs.readFileSync(RISTORANTI_FILENAME));
-	let ristorante = ristoranti.find(r => r.id == req.params.ristorante_id);
+app.post("/api/ristoranti/:ristorante_id/recensioni", async (req, res) => {
+	let recensioni = JSON.parse(await fs.promises.readFile(RECENSIONI_FILENAME));
+	let ristoranti = JSON.parse(await fs.promises.readFile(RISTORANTI_FILENAME));
 
+	let ristorante = ristoranti.find(r => r.id == req.params.ristorante_id);
 	if (!ristorante) {
 		res.status(404).send("Ristorante non trovato");
+		return;
+	}
+
+	// Valida i dati
+	if (
+		// Dati definiti
+		!req.body.stelle || !req.body.commento
+		// Stelle valide
+		|| isNaN(req.body.stelle) || req.body.stelle < 1 || req.body.stelle > 5
+	) {
+		res.status(400).send("Dati non validi");
 		return;
 	}
 
 	let recensione = {
 		"id": recensioni.length + 1,
 		"ristorante_id": req.params.ristorante_id,
-		"stelle": req.body.voto,
+		// Crea una data ora
+		"data": Math.round(new Date().getTime() / 1000),
+		"stelle": req.body.stelle,
 		"commento": req.body.commento,
 	};
 
 	recensioni.push(recensione);
 
 	// Scrivi su file JSON i dati
-	fs.writeFile(RECENSIONI_FILENAME, JSON.stringify(recensioni), function(err) {
-		if (err) {
-			res.status(500).send("Errore durante la scrittura su file");
-			return;
-		}
+	await fs.promises.writeFile(RECENSIONI_FILENAME, JSON.stringify(recensioni));
 
-		res.json(recensione);
-	});
+	res.json(recensione);
 });
 
-app.get("/api/ristoranti/:ristorante_id/recensioni/:recensione_id", function(req, res) {
-	let recensioni = JSON.parse(fs.readFileSync(RECENSIONI_FILENAME));
+app.get("/api/ristoranti/:ristorante_id/recensioni/:recensione_id", async (req, res) => {
+	let recensioni = JSON.parse(await fs.promises.readFile(RECENSIONI_FILENAME));
 	let recensione = recensioni.find(r => r.id == req.params.recensione_id);
 
 	if (!recensione) {
@@ -182,10 +177,10 @@ app.get("/api/ristoranti/:ristorante_id/recensioni/:recensione_id", function(req
 	res.json(recensione);
 });
 
-app.delete("/api/ristoranti/:ristorante_id/recensioni/:recensione_id", function(req, res) {
-	let recensioni = JSON.parse(fs.readFileSync(RECENSIONI_FILENAME));
-	let recensione = recensioni.find(r => r.id == req.params.recensione_id);
+app.delete("/api/ristoranti/:ristorante_id/recensioni/:recensione_id", async (req, res) => {
+	let recensioni = JSON.parse(await fs.promises.readFile(RECENSIONI_FILENAME));
 
+	let recensione = recensioni.find(r => r.id == req.params.recensione_id);
 	if (!recensione) {
 		res.status(404).send("Recensione non trovata");
 		return;
@@ -195,11 +190,7 @@ app.delete("/api/ristoranti/:ristorante_id/recensioni/:recensione_id", function(
 	recensioni = recensioni.filter(r => r.id != req.params.recensione_id);
 
 	// Scrivi su file JSON i dati
-	fs.writeFile(RECENSIONI_FILENAME, JSON.stringify(recensioni), function(err) {
-		if (err) {
-			res.status(500).send("Errore durante la scrittura su file");
-		}
-	});
+	await fs.promises.writeFile(RECENSIONI_FILENAME, JSON.stringify(recensioni));
 });
 
 // Avvia il server
