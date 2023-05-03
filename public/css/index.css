@@ -1,6 +1,4 @@
-#main-content {
-	padding: 0px 12px;
-}
+@import url('/css/common.css');
 
 .ristorante {
 	background-color: #fff;
@@ -11,12 +9,16 @@
 	margin: 0 auto;
 }
 
+.ristorante:hover {
+	background-color: #eee;
+}
+
 .ristorante-nome {
 	font-size: 28px;
 	margin-top: 0;
 }
 
-.ristorante-comune {
+.ristorante-provincia {
 	font-size: 18px;
 	line-height: 1.5;
 }

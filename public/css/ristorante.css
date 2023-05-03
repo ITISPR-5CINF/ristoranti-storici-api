@@ -1,6 +1,4 @@
-#main-content {
-	padding: 0px 12px;
-}
+@import url('/css/common.css');
 
 #info-ristorante {
 	background-color: #fff;

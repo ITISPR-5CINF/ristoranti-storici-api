@@ -6,13 +6,13 @@ const path = require("path");
 const DEBUG = true;
 const PORT = process.env.PORT || 3000;
 
-const COMUNI_FILENAME = path.join(__dirname, "comuni.json");
+const PROVINCE_FILENAME = path.join(__dirname, "province.json");
 const RECENSIONI_FILENAME = path.join(__dirname, "recensioni.json");
 const RISTORANTI_FILENAME = path.join(__dirname, "ristoranti.json");
 
-// Controlla che comuni.json esista
-if (!fs.existsSync(COMUNI_FILENAME)) {
-	console.error(`File ${COMUNI_FILENAME} non trovato`);
+// Controlla che province.json esista
+if (!fs.existsSync(PROVINCE_FILENAME)) {
+	console.error(`File ${PROVINCE_FILENAME} non trovato`);
 	process.exit(1);
 }
 
@@ -39,9 +39,32 @@ app.use(express.json());
 // Specifica la cartella contenente i file statici
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get("/api/comuni", async (req, res) => {
-	let comuni = JSON.parse(fs.readFileSync(COMUNI_FILENAME));
-	res.json(comuni);
+app.get("/api/province", async (req, res) => {
+	let province = JSON.parse(fs.readFileSync(PROVINCE_FILENAME));
+	res.json(province);
+});
+
+app.get("/api/province/:sigla", async (req, res) => {
+	let province = JSON.parse(fs.readFileSync(PROVINCE_FILENAME));
+
+	let provincia = province.find(p => p.sigla == req.params.sigla);
+	if (provincia === undefined) {
+		res.status(404).send("Provincia non trovata");
+		return;
+	}
+
+	res.json(provincia);
+});
+
+app.get("/api/regioni", async (req, res) => {
+	let province = JSON.parse(fs.readFileSync(PROVINCE_FILENAME));
+
+	let regioni = new Set();
+	province.forEach(provincia => {
+		regioni.add(provincia.regione);
+	});
+
+	res.json(Array.from(regioni));
 });
 
 app.get("/api/ristoranti", async (req, res) => {
@@ -53,9 +76,9 @@ app.post("/api/ristoranti", async (req, res) => {
 	// Valida i dati
 	if (
 		// Dati definiti
-		!req.body.nome || !req.body.comune || !req.body.indirizzo || !req.body.anno_apertura || !req.body.specialita
-		// Comune valido
-		|| !JSON.parse(fs.readFileSync(COMUNI_FILENAME)).includes(req.body.comune)
+		!req.body.nome || !req.body.provincia || !req.body.indirizzo || !req.body.anno_apertura || !req.body.specialita
+		// Provincia valida
+		|| JSON.parse(fs.readFileSync(PROVINCE_FILENAME)).find(p => p.sigla == req.body.provincia) === undefined
 		// Anno di apertura valido
 		|| isNaN(req.body.anno_apertura)
 	) {
@@ -67,7 +90,7 @@ app.post("/api/ristoranti", async (req, res) => {
 	let ristorante = {
 		"id": (ristoranti.length + 1),
 		"nome": req.body.nome,
-		"comune": req.body.comune,
+		"provincia": req.body.provincia,
 		"indirizzo": req.body.indirizzo,
 		"anno_apertura": req.body.anno_apertura,
 		"specialita": req.body.specialita,

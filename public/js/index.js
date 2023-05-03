@@ -19,7 +19,7 @@ async function main() {
 		ristorantiElement.innerHTML += `
 			<div class="ristorante" onClick="window.location='ristorante.html?id=${ristorante.id}';">
 				<h2 class="ristorante-nome">${ristorante.nome}</h2>
-				<p class="ristorante-comune">Comune: ${ristorante.comune}</p>
+				<p class="ristorante-provincia">Provincia: ${ristorante.provincia}</p>
 				<p class="ristorante-indirizzo">Indirizzo: ${ristorante.indirizzo}</p>
 				<p class="ristorante-anno-apertura">Anno di apertura: ${ristorante.anno_apertura}</p>
 				<p class="ristorante-specialita">Specialità: ${ristorante.specialita}</p>

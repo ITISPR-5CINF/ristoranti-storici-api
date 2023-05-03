@@ -62,9 +62,20 @@ async function main() {
 
 	let ristorante = await response.json();
 
+	// Ottieni informazioni sulla provincia
+	response = await fetch(`api/province/${ristorante.provincia}`);
+	if (!response.ok) {
+		console.error(`Errore durante il caricamento della provincia ${ristorante.provincia}: ${response.status}`);
+		infoRistoranteElement.innerHTML = "<p>Errore: Ristorante non trovato</p>";
+		return;
+	}
+
+	let provincia = await response.json();
+
 	infoRistoranteElement.innerHTML = `
 		<h1 class="ristorante-nome">${ristorante.nome}</h1>
-		<p class="ristorante-comune">Comune: ${ristorante.comune}</p>
+		<p class="ristorante-regione">Regione: ${provincia.regione}</p>
+		<p class="ristorante-provincia">Provincia: ${provincia.nome} (${provincia.sigla})</p>
 		<p class="ristorante-indirizzo">Indirizzo: ${ristorante.indirizzo}</p>
 		<p class="ristorante-anno-apertura">Anno di apertura: ${ristorante.anno_apertura}</p>
 		<p class="ristorante-specialita">Specialità: ${ristorante.specialita}</p>
