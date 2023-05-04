@@ -40,12 +40,12 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get("/api/province", async (req, res) => {
-	let province = JSON.parse(fs.readFileSync(PROVINCE_FILENAME));
+	let province = JSON.parse(await fs.promises.readFile(PROVINCE_FILENAME));
 	res.json(province);
 });
 
 app.get("/api/province/:sigla", async (req, res) => {
-	let province = JSON.parse(fs.readFileSync(PROVINCE_FILENAME));
+	let province = JSON.parse(await fs.promises.readFile(PROVINCE_FILENAME));
 
 	let provincia = province.find(p => p.sigla == req.params.sigla);
 	if (provincia === undefined) {
@@ -57,7 +57,7 @@ app.get("/api/province/:sigla", async (req, res) => {
 });
 
 app.get("/api/regioni", async (req, res) => {
-	let province = JSON.parse(fs.readFileSync(PROVINCE_FILENAME));
+	let province = JSON.parse(await fs.promises.readFile(PROVINCE_FILENAME));
 
 	let regioni = new Set();
 	province.forEach(provincia => {
@@ -68,7 +68,7 @@ app.get("/api/regioni", async (req, res) => {
 });
 
 app.get("/api/ristoranti", async (req, res) => {
-	let ristoranti = JSON.parse(fs.readFileSync(RISTORANTI_FILENAME));
+	let ristoranti = JSON.parse(await fs.promises.readFile(RISTORANTI_FILENAME));
 	res.json(ristoranti);
 });
 
@@ -78,7 +78,7 @@ app.post("/api/ristoranti", async (req, res) => {
 		// Dati definiti
 		!req.body.nome || !req.body.provincia || !req.body.indirizzo || !req.body.anno_apertura || !req.body.specialita
 		// Provincia valida
-		|| JSON.parse(fs.readFileSync(PROVINCE_FILENAME)).find(p => p.sigla == req.body.provincia) === undefined
+		|| JSON.parse(await fs.promises.readFile(PROVINCE_FILENAME)).find(p => p.sigla == req.body.provincia) === undefined
 		// Anno di apertura valido
 		|| isNaN(req.body.anno_apertura)
 	) {
