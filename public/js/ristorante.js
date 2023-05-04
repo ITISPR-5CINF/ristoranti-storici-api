@@ -5,13 +5,13 @@ const recensioniElement = document.getElementById("recensioni");
 const params = new URLSearchParams(window.location.search);
 
 async function aggiornaRecensioni() {
-	if (!params.has("id")) {
+	if (!params.has("ristorante_id")) {
 		console.log("Errore: ID del ristorante non specificato");
 		recensioniElement.innerHTML = "<p>Errore durante il caricamento delle recensioni</p>";
 		return;
 	}
 
-	let ristoranteId = params.get("id");
+	let ristoranteId = params.get("ristorante_id");
 
 	response = await fetch(`api/ristoranti/${ristoranteId}/recensioni`);
 	if (!response.ok) {
@@ -45,13 +45,13 @@ async function aggiornaRecensioni() {
 }
 
 async function main() {
-	if (!params.has("id")) {
+	if (!params.has("ristorante_id")) {
 		console.log("Errore: ID del ristorante non specificato");
 		infoRistoranteElement.innerHTML = "<p>Errore: Ristorante non trovato</p>";
 		return;
 	}
 
-	let ristoranteId = params.get("id");
+	let ristoranteId = params.get("ristorante_id");
 
 	let response = await fetch(`api/ristoranti/${ristoranteId}`);
 	if (!response.ok) {

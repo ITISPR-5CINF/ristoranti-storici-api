@@ -17,7 +17,7 @@ async function main() {
 	ristorantiElement.innerHTML = "";
 	ristoranti.forEach(ristorante => {
 		ristorantiElement.innerHTML += `
-			<div class="ristorante" onClick="window.location='ristorante.html?id=${ristorante.id}';">
+			<div class="ristorante" onClick="window.location='ristorante.html?ristorante_id=${ristorante.ristorante_id}';">
 				<h2 class="ristorante-nome">${ristorante.nome}</h2>
 				<p class="ristorante-provincia">Provincia: ${ristorante.provincia}</p>
 				<p class="ristorante-indirizzo">Indirizzo: ${ristorante.indirizzo}</p>
