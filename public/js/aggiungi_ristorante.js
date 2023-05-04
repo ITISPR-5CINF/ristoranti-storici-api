@@ -28,21 +28,18 @@ async function main() {
 		let anno_apertura = document.getElementById('anno_apertura').value;
 		let specialita = document.getElementById('specialita').value;
 
-		// Crea un oggetto con i dati del ristorante
-		let ristorante = {
-			nome,
-			provincia,
-			indirizzo,
-			anno_apertura,
-			specialita,
-		};
-
 		let response = await fetch("api/ristoranti", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(ristorante),
+			body: JSON.stringify({
+				nome,
+				provincia,
+				indirizzo,
+				anno_apertura,
+				specialita,
+			}),
 		})
 
 		if (!response.ok) {
@@ -50,8 +47,10 @@ async function main() {
 			return;
 		}
 
-		// Ritorna a /
-		window.location.href = "/";
+		let ristorante = await response.json();
+
+		// Redireziona alla nuova pagina del ristorante
+		window.location.href = `/ristorante.html?ristorante_id=${ristorante.ristorante_id}`;
 	});
 }
 
