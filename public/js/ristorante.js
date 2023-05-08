@@ -35,7 +35,7 @@ async function aggiornaRecensioni() {
 		recensioniElement.innerHTML += `
 			<div class="recensione">
 				<div class="recensione-info">
-					<p class="recensione-stelle">Stelle: ${recensione.stelle}</p>
+					<p class="recensione-stelle">Stelle: ${[...Array(recensione.stelle).keys()].map(() => "★").join("")}</p>
 					<p class="recensione-data">Data: ${new Date(recensione.data * 1000).toLocaleDateString()}</p>
 				</div>
 				<p class="recensione-testo">${recensione.commento}</p>
