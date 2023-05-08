@@ -67,8 +67,33 @@ app.get("/api/regioni", async (req, res) => {
 	res.json(Array.from(regioni));
 });
 
+/**
+ * @api {get} /api/ristoranti Lista ristoranti
+ * @apiDescription Ottiene la lista dei ristoranti
+ * @apiParam {String} [provincia] Filtra per provincia
+ * @apiParam {String} [regione] Filtra per regione
+ * @apiSuccess {Object[]} ristoranti Lista dei ristoranti
+ */
 app.get("/api/ristoranti", async (req, res) => {
+	let provincia = req.query.provincia;
+	let regione = req.query.regione;
+
+	// Provincia e regione non possono essere specificate contemporaneamente
+	if (provincia && regione) {
+		res.status(400).send("Provincia e regione non possono essere specificate contemporaneamente");
+		return;
+	}
+
 	let ristoranti = JSON.parse(await fs.promises.readFile(RISTORANTI_FILENAME));
+	let province = JSON.parse(await fs.promises.readFile(PROVINCE_FILENAME));
+
+	// Filtra per provincia o regione
+	if (provincia) {
+		ristoranti = ristoranti.filter(r => r.provincia == provincia);
+	} else if (regione) {
+		ristoranti = ristoranti.filter(r => province.find(p => p.sigla == r.provincia).regione == regione);
+	}
+
 	res.json(ristoranti);
 });
 
