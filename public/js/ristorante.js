@@ -72,6 +72,26 @@ async function main() {
 
 	let provincia = await response.json();
 
+	// Ottieni informazioni sui piatti tipici
+	let piattiTipici = {};
+	const TIPOLOGIE = [
+		"Primi",
+		"Secondi",
+		"Dessert",
+		"Bevande",
+	]
+	
+	for (let tipologia of TIPOLOGIE) {
+		response = await fetch(`api/regioni/${provincia.regione}/piatti/${tipologia}`);
+		if (!response.ok) {
+			console.error(`Errore durante il caricamento dei piatti tipici per la regione ${provincia.regione}: ${response.status}`);
+			infoRistoranteElement.innerHTML = "<p>Errore: Ristorante non trovato</p>";
+			return;
+		}
+
+		piattiTipici[tipologia] = await response.json();
+	}
+
 	infoRistoranteElement.innerHTML = `
 		<h1 class="ristorante-nome">${ristorante.nome}</h1>
 		<p class="ristorante-regione">Regione: ${provincia.regione}</p>
@@ -79,6 +99,21 @@ async function main() {
 		<p class="ristorante-indirizzo">Indirizzo: ${ristorante.indirizzo}</p>
 		<p class="ristorante-anno-apertura">Anno di apertura: ${ristorante.anno_apertura}</p>
 		<p class="ristorante-specialita">Specialità: ${ristorante.specialita}</p>
+		<p class="ristorante-piatti-tipici">
+			Piatti tipici della regione:
+			<ul>
+				${TIPOLOGIE.map(tipologia => `
+					<li>
+						${tipologia}:
+						<ul>
+							${piattiTipici[tipologia].map(piatto => `
+								<li>${piatto.nome}</li>
+							`).join("")}
+						</ul>
+					</li>
+				`).join("")}
+			</ul>
+		</p>
 	`
 
 	recensioneFormElement.addEventListener("submit", async event => {

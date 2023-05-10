@@ -1,10 +1,13 @@
 const cors = require('cors');
 const express = require('express');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const fs = require('fs');
 const path = require("path");
 
 const DEBUG = true;
 const PORT = process.env.PORT || 3000;
+
+const PIATTI_TIPICI_PER_REGIONE_URL = "http://192.168.185.20:3000/ricercaPiatti"
 
 const PROVINCE_FILENAME = path.join(__dirname, "province.json");
 const RECENSIONI_FILENAME = path.join(__dirname, "recensioni.json");
@@ -65,6 +68,22 @@ app.get("/api/regioni", async (req, res) => {
 	});
 
 	res.json(Array.from(regioni));
+});
+
+app.get("/api/regioni/:regione/piatti/:tipologia", async (req, res) => {
+	let regione = req.params.regione;
+	let tipologia = req.params.tipologia;
+
+	let response = await fetch(`${PIATTI_TIPICI_PER_REGIONE_URL}?regioni=${regione}&tipologia=${tipologia}`);
+	if (!response.ok) {
+		console.error(`Errore durante il caricamento dei piatti tipici per la regione ${regione}: ${response.status}`);
+		res.status(500).send("Errore durante il caricamento dei piatti tipici");
+		return;
+	}
+
+	let piatti = await response.json();
+
+	res.json(piatti.messaggio.lista);
 });
 
 /**
