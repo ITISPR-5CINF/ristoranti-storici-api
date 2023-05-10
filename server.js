@@ -1,11 +1,16 @@
 const cors = require('cors');
+const dotenv = require('dotenv');
 const express = require('express');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const fs = require('fs');
 const path = require("path");
 
-const DEBUG = true;
+// Carica le variabili d'ambiente
+dotenv.config();
+
+const DEBUG = process.env.DEBUG !== undefined ? process.env.DEBUG : true;
 const PORT = process.env.PORT || 3000;
+const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
 
 const PIATTI_TIPICI_PER_REGIONE_URL = "http://192.168.185.20:3000/ricercaPiatti"
 
@@ -57,6 +62,27 @@ app.get("/api/province/:sigla", async (req, res) => {
 	}
 
 	res.json(provincia);
+});
+
+app.get("/api/province/:sigla/meteo", async (req, res) => {
+	let province = JSON.parse(await fs.promises.readFile(PROVINCE_FILENAME));
+
+	let provincia = province.find(p => p.sigla == req.params.sigla);
+	if (provincia === undefined) {
+		res.status(404).send("Provincia non trovata");
+		return;
+	}
+
+	let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${provincia.nome}, IT&lang=IT&appid=${OPENWEATHERMAP_API_KEY}`);
+	if (!response.ok) {
+		console.error(`Errore durante il caricamento del meteo per la provincia ${provincia.sigla}: ${response.status}`);
+		res.status(500).send("Errore durante il caricamento del meteo");
+		return;
+	}
+
+	let meteo = await response.json();
+
+	res.json(meteo);
 });
 
 app.get("/api/regioni", async (req, res) => {
